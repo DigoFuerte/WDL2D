@@ -1,0 +1,37 @@
+CREATE PROCEDURE sp_save_user_media (  IN p_user_id         INT(10),        
+                                       IN p_copyright       VARCHAR(50),    
+                                       IN p_apod_date       VARCHAR(20),    
+                                       IN p_explanation     VARCHAR(512),   
+                                       IN p_hdurl           VARCHAR(128),   
+                                       IN p_media_type      VARCHAR(10),    
+                                       IN p_service_version VARCHAR(10),    
+                                       IN p_title           VARCHAR(50),    
+                                       IN p_url             VARCHAR(128),   
+                                       IN p_flag            BOOLEAN,        
+                                       OUT p_result         BOOLEAN       )
+  BEGIN  
+  
+    DECLARE p_media_id           INT(10) DEFAULT -88;  
+    DECLARE p_user_media_link_id INT(10) DEFAULT -88;  
+    
+    START TRANSACTION;    
+    
+      SET p_media_id = (SELECT media_id FROM user_media WHERE url = p_url);    
+      
+      IF (p_media_id = -88) THEN      
+        INSERT INTO user_media (copyright, apod_date, explanation, hdurl, media_type, service_version, title, url, flag)        
+          VALUES (p_copyright, p_apod_date, p_explanation, p_hdurl, p_media_type, p_service_version, p_title, p_url, p_flag);      
+        
+        SET p_media_id = ( SELECT LAST_INSERT_ID() );    
+      END IF    
+      
+      INSERT INTO user_media_link (user_id, media_id)      
+        VALUES (p_user_id, p_media_id);        
+      
+      SET p_user_media_link_id = ( SELECT LAST_INSERT_ID() );  
+      
+    COMMIT;    
+    
+    SET p_result = (p_user_media_link_id != -88);
+  
+  END

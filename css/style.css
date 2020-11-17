@@ -1,0 +1,104 @@
+html {
+  scroll-behavior: smooth;
+}
+
+.ptolemy-brand {
+  /* font-family: "Times New Roman", Times, serif; */
+  font-family: "Comic Sans MS", cursive, sans-serif;
+  font-variant: normal;
+}
+
+/*? user account styles */
+.sign-bg-high {
+  background: #285575 !important;
+}
+
+/* .sign-bg-med {
+  background: #285575 !important;
+} */
+
+.sign-bg-low {
+  background: #152C3D !important;
+}
+
+.sign-fg-low {
+  color: #152C3D !important;
+}
+
+.sign-fg-med {
+  color: #285575 !important;
+}
+
+.sign-fg-high {
+  color: #53B1F5 !important;
+}
+
+.sign-txt-white {
+  color: #f8f9fa;
+}
+
+/*? for profile image upload page */
+#upload-image {
+  display: none;
+}
+
+#update-profile {
+  display: none;
+}
+
+/* 
+#04443C high   #3B1F5    class sign-bg-high sign-fg-low
+#C5D984 low    #152C3D   class sign-bg-low sign-fg-high
+        medium #28557
+
+<!-- <div class="bg-info text-white text-center rounded-top py-2"style="background:#04443C!important;">-->
+<div class="bg-info text-white text-center rounded-top py-2"id="sign-card-inner-div"> 
+*/
+
+/* 
+<!-- <div class=" card-body rounded-bottom"style="background: #C5D984; ">-->
+<div class=" card-body rounded-bottom"id="sign-card-body"> 
+*/
+
+/* 
+<!-- <div class="input-group-text"><i class="fa fa-envelope text-info"style="color:#04443C!important;">
+</i>--><div class="input-group-text"><i class="fa fa-envelope text-info"id="sign-fa-envel"></i> 
+*/
+
+/* 
+<!-- <div class="input-group-text"><i class="fa fa-lock"style="color:#04443C!important;"></i></div>-->
+<div class="input-group-text"><i class="fa fa-lock"style="color:#04443C!important;"></i></div> 
+*/
+
+/* 
+<!-- <button type="submit"style="background:#04443C!important;"id="submit"name="login"-->
+<button type="submit"style="background:#04443C!important;"id="submit"name="login" 
+*/
+
+/* 
+<!-- <h3 style="display:inline;">Sign in <i class="fas fa-sign-in-alt"style="color:#C5D984"aria-hidden="true"></i></h3>-->
+     <h3 style="display:inline;">Sign in <i class="fas fa-sign-in-alt"style="color:#C5D984"aria-hidden="true"></i></h3> 
+*/
+
+body {
+  padding-bottom: 0;
+  background-color: black;
+}
+
+.menu-font-size {
+  font-size: 18px;
+  font-variant: small-caps;
+  font-weight: bold;
+  /* background-color: #04443C !important; */
+  color: white;
+}
+
+footer {
+  /* background: #343a40; */
+  background: black;
+  padding: 40px;
+}
+
+footer a {
+  color: #f8f9fa!important
+}
