@@ -18,6 +18,7 @@ else {
         extract($user_details);
         $_SESSION['user_details'] = $user_details;
     }
+
 }
 ?>
 

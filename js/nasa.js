@@ -19,7 +19,7 @@ const NASA_API_KEY = 'jDpuF0V85x4F99c50zfs182iKJgpnA7gbUKCKsgh';
 
 const NASA_IMAGES_API_ID = 2;
 // images and audio available
-const NASA_IMAGES_API_URL = 'https://images-api.nasa.gov';
+const NASA_IMAGES_API_URL = 'https://images-api.nasa.gov/search';
 // no key required ... ???
   
 const SESSION_KEY_TEST = 'jq_php_test';
@@ -193,6 +193,7 @@ const SESSION_KEY_APOD = 'jq_php_apod';
       //* call ajax function to update the webpage
       displayApodImage(str_api_url, i_alt, str_target_div);
     } //* end of for-loop 
+    getNasaSearchResults();
   } // end of function getSevenDayWindow()
 
   //? ajax is intrinsicly asynchronous
@@ -218,7 +219,6 @@ const SESSION_KEY_APOD = 'jq_php_apod';
         }
       },
       error: function (xhr, status, errorThrown) {
-        alert("Sorry, there was a problem!");
         console.log("Error: " + errorThrown);
         console.log("Status: " + status);
         console.dir(xhr);
@@ -230,6 +230,126 @@ const SESSION_KEY_APOD = 'jq_php_apod';
     });  // end of ajax function
 
   } // end of function displayApodImage()
+
+  function getNasaSearchResults(qryString="") {
+    //* https://images-api.nasa.gov/search
+    //*   ?q=apollo%2011
+    //*   &description=moon%20landing
+    //*   &media_type=image
+
+    if (qryString.trim() === "") {
+      qryString = "?q=apollo%2011&description=moon%20landing&media_type=image"
+    }
+
+    let str_url = NASA_IMAGES_API_URL + qryString
+    
+    $.ajax({
+      url: str_url,
+      type: 'GET',
+      dataType: 'json',
+      success: function (data) {  
+        console.log("NASA MEDIA SEARCH: 01");
+        // console.log(data);
+        // console.log(Object.keys((data.collection)));
+        // console.log(data.collection.items);
+        let _date_01;
+        let _date_02;
+        let _hdurl;
+        let _url;
+        let _title;
+        let _description_01;
+        let _description_02;
+        let _media_type;
+        let _copyright;
+        data.collection.items.forEach((element) => {
+          // console.log("element.href: " + element.href);
+          // console.log("element.data.date: " + element.data[0].date_created);
+          _date_01 = element.data[0].date_created;
+          // console.log("element.data.title: " + element.data[0].title);
+          _title = element.data[0].title;
+          // console.log("element.data.description: " + element.data[0].description);
+          _description_01 = element.data[0].description;
+          // console.log("element.data.media_type: " + element.data[0].media_type);
+          _media_type = element.data[0].media_type;
+          
+          //* INNER AJAX CALL TO COLLECTION JSON
+          $.ajax({
+            url: element.href,
+            type: 'GET',
+            dataType: 'json',
+            success: function (cjsonData) {
+              console.log("NASA MEDIA SEARCH: 02");
+              //               cjsonData[0] ... http://images-assets.nasa.gov/image/NHQ201907180119/NHQ201907180119~orig.tif,
+
+              //! hdurl    ... cjsonData[1] ... http://images-assets.nasa.gov/image/NHQ201907180119/NHQ201907180119~large.jpg,
+              // console.log("cjsonData[1] ~large.jpg: " + cjsonData[1]);
+              _hdurl = cjsonData[1];
+
+              //! url      ... cjsonData[2] ... http://images-assets.nasa.gov/image/NHQ201907180119/NHQ201907180119~medium.jpg,
+              // console.log("cjsonData[2] ~medium.jpg: " + cjsonData[2]);
+              _url = cjsonData[2];
+
+              //           ... cjsonData[3] ... http://images-assets.nasa.gov/image/NHQ201907180119/NHQ201907180119~small.jpg,
+
+              //! ########### TO DO ####################
+              //! thumb    ... cjsonData[4] ... http://images-assets.nasa.gov/image/NHQ201907180119/NHQ201907180119~thumb.jpg,
+              // console.log("cjsonData[4] thumbnail: " + cjsonData[4]);
+              //! ########### TO DO ####################
+              
+              //* metadata ... cjsonData[5] ... http://images-assets.nasa.gov/image/NHQ201907180119/metadata.json
+              //* INNER AJAX CALL TO METADATA
+              $.ajax({
+                url: cjsonData[5],
+                type: 'GET',
+                dataType: 'json',
+                success: function (meta_data) {
+                  console.log("NASA MEDIA SEARCH: 03");
+                  // console.log("AVAIL Date Created: " + meta_data["AVAIL:DateCreated"]);
+                  _date_02 = meta_data["AVAIL:DateCreated"];
+                  // console.log("AVAIL Copyright: " + meta_data["EXIF:Copyright"]);
+                  _copyright = meta_data["EXIF:Copyright"];
+                  // console.log("AVAIL Description: " + meta_data["AVAIL:Description"]);
+                  _description_02 = meta_data["AVAIL:Description"];
+                },
+                error: function (xhr, status, errorThrown) {
+                console.log("INNER AJAX MDATA Error: " + errorThrown);
+                console.log("INNER AJAX MDATA Status: " + status);
+                console.dir(xhr);
+                }
+              });
+              //* ______________________
+              // console.log("_date_01): ", _date_01);
+              // console.log("_date_02: ", _date_02);
+              // console.log("_hdurl: ", _hdurl);
+              // console.log("_url: ", _url);
+              // console.log("_title: ", _title);
+              // console.log("_description_01: ", _description_01);
+              // console.log("_description_02: ", _description_02);
+              // console.log("_media_type: ", _media_type);
+              // console.log("_copyright: ", _copyright);
+            },
+            error: function (xhr, status, errorThrown) {
+              console.log("INNER AJAX Error: " + errorThrown);
+              console.log("INNER AJAX Status: " + status);
+              console.dir(xhr);
+            }
+          });
+          //* _____________________________
+        }); // enf of data.collection.items.forEach((element))
+        //* show collected information
+      },
+      error: function (xhr, status, errorThrown) {
+        console.log("MAIN AJAX Error: " + errorThrown);
+        console.log("MAIN AJAX Status: " + status);
+        console.dir(xhr);
+      },
+      complete: function () {
+        // alert( "The request is complete!" );
+      }
+
+    });  // end of ajax function
+
+  }
 
   //          DATA TO SAVE IN SESSION
   // 1  slide_id:        "slide-07"
@@ -296,4 +416,7 @@ const SESSION_KEY_APOD = 'jq_php_apod';
   //! function incomplete
 
 }); // end of $(document).ready(...) 
+
+//* __________________________
+//*  OUTSIDE OF jQUERY BLOCK
 

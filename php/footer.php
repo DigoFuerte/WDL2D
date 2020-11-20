@@ -64,16 +64,16 @@
     </div>
 </footer>
 
-<script src="./js/jquery-slim.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/jquery.fancybox.min.js"></script>
-<script src="./js/popper.min.js"></script>
-<script src="./js/bootstrap.min.js"></script>
-<script src="./js/holder.min.js"></script>
+<!-- <script src="js/jquery-slim.min.js"></script> -->
+<script src="js/jquery.min.js"></script>
+<script src="js/jquery.fancybox.min.js"></script>
+<script src="js/popper.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/holder.min.js"></script>
 <!-- CUSTOM CODE -->
-<script src="./js/script.js"></script>
-<script src="./js/nasa.js"></script>
-<script src="./js/tooltip-viewport.js"></script>
+<script src="js/script.js"></script>
+<script src="js/nasa.js"></script>
+<script src="js/tooltip-viewport.js"></script>
 
 </body> 
 </html>

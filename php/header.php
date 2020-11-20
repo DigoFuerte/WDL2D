@@ -15,6 +15,7 @@ include_once "./php/boilerplate.php";
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.8/css/all.css">
   <link rel="stylesheet" href="./css/bootstrap.min.css"    type="text/css">
   <link rel="stylesheet" href="./css/apod.css"             type="text/css">
+  <link rel="stylesheet" href="./css/album.css"            type="text/css">
   <link rel="stylesheet" href="./css/carousel.css"         type="text/css">
   <link rel="stylesheet" href="./css/style.css"            type="text/css">
   <link rel="stylesheet" href="./css/tooltip-viewport.css" type="text/css">
@@ -61,7 +62,7 @@ include_once "./php/boilerplate.php";
               <?php if ( HasMemberAccess($_SESSION['user_details']['user_permissions']) ) {?>
 
                 <!-- MENU ITEM: Members ... Gallery -->
-                <a class="dropdown-item" href="gallery.php">Member Gallery</a>
+                <a class="dropdown-item" href="album.php">Album</a>
 
                 <!-- MENU ITEM: Members ... Search -->
                 <a class="dropdown-item" href="#">Search</a>

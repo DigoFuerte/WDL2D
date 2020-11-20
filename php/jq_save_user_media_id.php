@@ -24,7 +24,6 @@ if ( isset($_POST['slide_id']) ) {
   if ( isset($_POST[$p_service_version]) ) { $service_version = $_POST[$p_service_version]; }
   if ( isset($_POST[$p_title]) )           { $title = $_POST[$p_title]; }
   if ( isset($_POST[$p_url]) )             { $url = $_POST[$p_url]; }
-  // if ( isset($_POST[$p_flag]) )            { $flag = $_POST[$p_flag]; }
 
   // save data to db
   save_user_media ($copyright,
@@ -35,12 +34,7 @@ if ( isset($_POST['slide_id']) ) {
                    $service_version,
                    $title,
                    $url);
-                  //  ,$flag);
-  // save data to db
-
-  // unset($_POST['P_USER_ID']);
-  // echo isset($_SESSION[$post_key]);
-  // echo "session variable set: OK";
+                   
 }
 else {
   echo FALSE;

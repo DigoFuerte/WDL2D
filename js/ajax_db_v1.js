@@ -38,57 +38,120 @@ function getQueryStringValue(queryStringKey) {
     //* e.g getQueryStringValue("selected_slide")
 }
 
-// ... after interogating the query string
-//* function to populate media_view.php
+//! function to populate media_view.php ... after slide_id taken from query string
 function displaySlide(isSlide, slide_id) {
 
+  let media_id = -88;
+
+  if (isSlide) {
+    console.log("isSlide: " + isSlide + " ... slide_id: " + slide_id);
+  }
+  else {
+    console.log("isSlide: " + isSlide + " ... media_id: " + slide_id);
+    media_id = slide_id;
+  }
+
+  //* form key-value for hdurl
   let str_html = ""
-  //* key-value pairs for media details
   let sess_key = "";
   let sess_value = "";
-  let mediaDetails;
-  
-  mediaDetails = get_media_details_local(isSlide, slide_id);
+  let promiseResult;
+  let userMedia = {};
+  let user_title;
+  let user_explanation;
 
-  //* display media
-  $(media_div).html("<img class='apod-image' src='" + mediaDetails.hdurl + "' alt='" + slide_id + "'></>");   
+  //* get url from sessionStorage ... coming from Home page
+  if (isSlide) {
+    sess_key = slide_id + "_hdurl";
+    sess_value = sessionStorage.getItem(sess_key);
+  }
+  //* get url from $_SESSION['user_media'] ... coming from Gallery page
+  else {
+    console.log("GETTING MEDIA DATA FROM $_SESSION: ");
+    // userMedia = jsGetMediaSessionData(media_id).then(
+    //! in Javascript ... UNABLE TO WAIT FOR ASYNC PROCESS TO RETURN
+    //! ALTERNATIVE   ... STORE USER MEDIA DETAILS IN session Storage beforehand
+    // promiseResult = jsGetMediaSessionData(media_id).then(
+    //   // anonymous function for: SUCCESS
+    //   function (result) {
+
+    //     // result.media_id
+    //     // result.copyright       
+    //     // result.apod_date       
+    //     // result.explanation     
+    //     // result.hdurl           
+    //     // result.media_type      
+    //     // result.service_version 
+    //     // result.title           
+    //     // result.url             
+
+    //     // console.log("$_SESSION['user_media'] found with value: {" + JSON.parse(result) + "}");
+    //     // console.log("$_SESSION['user_media'] found title: {" + result.title + "}");
+    //     // console.log("$_SESSION['user_media'] found explanation: {" + result.explanation + "}");
+    
+    //     user_title = result.title;
+    //     console.log("INSIDE PROMISE ... user_title: {" + user_title + "}");
+        
+    //     user_explanation = result.explanation;
+    //     console.log("INSIDE PROMISE ... user_explanation: {" + user_title + "}");
+
+    //     // userMedia = Object.assign(result);
+    //     // console.log("INSIDE PROMISE ... userMedia.title: {" + userMedia.title + "}");
+    //     // console.log("INSIDE PROMISE ... userMedia.explanation: {" + userMedia.explanation + "}");
+    //     // console.log("INSIDE PROMISE ... userMedia.hdurl: {" + userMedia.hdurl + "}");
+    //     return result;
+    //   },
+    //   // anonymous function for: ERROR
+    //   function (error) {
+    //     console.error("Error: " + error);
+    //   } 
+    // ); // end of promise jsGetMediaSessionData()
+
+    // userMedia = Object.assign(promiseResult);
+    // console.log("AFTER PROMISE ... userMedia.title: {" + userMedia.title + "}");
+    // console.log("AFTER PROMISE ... userMedia.explanation: {" + userMedia.explanation + "}");
+    // console.log("AFTER PROMISE ... userMedia.hdurl: {" + userMedia.hdurl + "}");
+
+    // console.log("AFTER PROMISE ... user_title: {" + user_title + "}");
+    // console.log("AFTER PROMISE ... user_explanation: {" + user_title + "}");
+
+  }
+
+  // console.log("sess_key: " + sess_key + " ... " + "sess_value: " + sess_value);
+  $(media_div).html("<img class='apod-image' src='" + sess_value + "' alt='" + slide_id + "'></>");   
 
   //* save button
   if (isSlide) {
-    // console.log("Setting up SAVE BUTTON: slide_id" + slide_id);
-    // anonymous function for click event on Save Button
+    console.log("Setting up SAVE BUTTON: slide_id" + slide_id);
     $(save_media_btn).on("click", function () {
       // disable the button
       $(this).prop('disabled', true);
-      // create empty json object 
+      console.log("01 INSIDE anonymous function: " + slide_id);
+      //* create empty json object 
       var obj_data_param = {};
       //obj_data_param['P_USER_ID'] = user_id;                                      
       // first parameter for ajax ... slide_id
       obj_data_param['slide_id'] = slide_id;
+      // console.log("02 INSIDE anonymous function: obj_data_param['slide_id'] = " + obj_data_param['slide_id']);
       //* extract slide media meta data from sessionStorage
-      let session_vars = [
-        { _column: (slide_id + "_copyright"),       _data: mediaDetails.copyright },
-        { _column: (slide_id + "_date"),            _data: mediaDetails.date },
-        { _column: (slide_id + "_explanation"),     _data: mediaDetails.explanation },
-        { _column: (slide_id + "_hdurl"),           _data: mediaDetails.hdurl },
-        { _column: (slide_id + "_media_type"),      _data: mediaDetails.media_type },
-        { _column: (slide_id + "_service_version"), _data: mediaDetails.service_version },
-        { _column: (slide_id + "_title"),           _data: mediaDetails.title },
-        { _column: (slide_id + "_url"),             _data: mediaDetails.url }
-      ];
-      console.log("PRE PARAM BUILD ... title: " + mediaDetails.title);
-      console.log("PRE PARAM BUILD ... date: " + mediaDetails.date);
-      console.log("PRE PARAM BUILD ... hdurl: " + mediaDetails.hdurl);
-      // myArray.forEach((element, index, array) => { };
+      let session_vars = [{ id: (slide_id + "_copyright"), image_mdata: "" },
+      { id: (slide_id + "_date"), image_mdata: "" },
+      { id: (slide_id + "_explanation"), image_mdata: "" },
+      { id: (slide_id + "_hdurl"), image_mdata: "" },
+      { id: (slide_id + "_media_type"), image_mdata: "" },
+      { id: (slide_id + "_service_version"), image_mdata: "" },
+      { id: (slide_id + "_title"), image_mdata: "" },
+      { id: (slide_id + "_url"), image_mdata: "" }];
+      // ,{id:(slide_id + "_flag"),            image_mdata:false} ];
       session_vars.forEach(
-        (arr_element) => {
-          console.log("PARAM BUILD ... " + arr_element._column + ": " + arr_element._data);
-          obj_data_param[arr_element._column] = arr_element._data;
+        function (value) {
+          // get slide details from sessionStorage
+          value.meta_data = sessionStorage.getItem(value.id);
+          obj_data_param[value.id] = value.meta_data;
+          // console.log("GET: obj_data_param[" + value.id + "]: " + obj_data_param[value.id]);
         }
       ); // end of forEach - loop
-      console.log("params for save:");
-      console.log(obj_data_param);
-      //* perform ajax call
+      // perform ajax call
       $.ajax({
         type: 'POST',
         url: './php/jq_save_user_media_id.php',
@@ -107,28 +170,60 @@ function displaySlide(isSlide, slide_id) {
     );
   }    
   else {
-    // console.log("No SAVE BUTTON ... coming from Gallery page: media_id: " + media_id);
-    $(save_media_btn).prop('disabled', true);
+    console.log("No SAVE BUTTON ... coming from Gallery page: media_id: " + media_id);
   }
 
   //* title
-  $(title_para).html(mediaDetails.title);
+  if (isSlide) {
+    sess_key = slide_id + "_title";
+    sess_value = sessionStorage.getItem(sess_key);
+  }
+  else {
+    sess_value = userMedia.title;
+    // sess_value = user_title;
+  }
+  // console.log("sess_key: " + sess_key + " ... " + "sess_value: " + sess_value);
+  $(title_para).html(sess_value);
 
   //* copyright
-  if (mediaDetails.copyright != "undefined") { 
+  if (isSlide) {
+    sess_key = slide_id + "_copyright";
+    sess_value = sessionStorage.getItem(sess_key);
+  }
+  else {
+    sess_value = userMedia.copyright;
+  }      
+  if (sess_value != "undefined") { 
     str_html = "<i class='far fa-copyright'></i><p id='copyright_para' style='display:inline-block;'>";
-    str_html += mediaDetails.copyright + "</p><br>";
+    str_html += sess_value + "</p><br>";
     $(copyright_div).html(str_html); 
   }
 
   //* date
+  if (isSlide) {
+    sess_key = slide_id + "_date";
+    sess_value = sessionStorage.getItem(sess_key);
+  }
+  else {
+    sess_value = userMedia.date;
+  }
+  // console.log("sess_key: " + sess_key + " ... " + "sess_value: " + sess_value);
   str_html = "<i class='far fa-clock'></i><p id='date_para' style='display:inline-block;'>";
-  str_html += mediaDetails.date + "</p><br>";
+  str_html += sess_value + "</p><br>";
   $(date_div).html(str_html); 
 
   //* explanation
+  if (isSlide) {
+    sess_key = slide_id + "_explanation";
+    sess_value = sessionStorage.getItem(sess_key);
+  }
+  else {
+    console.log("OUTSIDE PROMISE ... userMedia.explanation: " + userMedia.explanation);
+    sess_value = userMedia.explanation;
+  }
+  // console.log("sess_key: " + sess_key + " ... " + "sess_value: " + sess_value);
   str_html = "<i class='fas fa-info'></i><p id='explanation_para' style='display:inline-block;'>";
-  str_html += mediaDetails.explanation + "</p>";
+  str_html += sess_value + "</p>";
   $(explanation_div).html(str_html); 
 
 } // end of function displaySlide()
