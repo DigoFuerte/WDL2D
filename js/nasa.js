@@ -193,7 +193,13 @@ const SESSION_KEY_APOD = 'jq_php_apod';
       //* call ajax function to update the webpage
       displayApodImage(str_api_url, i_alt, str_target_div);
     } //* end of for-loop 
-    getNasaSearchResults();
+
+    //! ... CODE TEST FOR: NASA SEARCH PROMISE ...
+    getNasaSearchResults().then(
+      //* check nasa search result
+      showNasaSearchResults()
+    );
+    //! ...       END OF TEST CODE             ...
   } // end of function getSevenDayWindow()
 
   //? ajax is intrinsicly asynchronous
@@ -231,7 +237,8 @@ const SESSION_KEY_APOD = 'jq_php_apod';
 
   } // end of function displayApodImage()
 
-  function getNasaSearchResults(qryString="") {
+  //* function to issue query to NASA API
+  async function getNasaSearchResults(qryString="") {
     //* https://images-api.nasa.gov/search
     //*   ?q=apollo%2011
     //*   &description=moon%20landing
@@ -243,113 +250,185 @@ const SESSION_KEY_APOD = 'jq_php_apod';
 
     let str_url = NASA_IMAGES_API_URL + qryString
     
-    $.ajax({
-      url: str_url,
-      type: 'GET',
-      dataType: 'json',
-      success: function (data) {  
-        console.log("NASA MEDIA SEARCH: 01");
-        // console.log(data);
-        // console.log(Object.keys((data.collection)));
-        // console.log(data.collection.items);
-        let _date_01;
-        let _date_02;
-        let _hdurl;
-        let _url;
-        let _title;
-        let _description_01;
-        let _description_02;
-        let _media_type;
-        let _copyright;
-        data.collection.items.forEach((element) => {
-          // console.log("element.href: " + element.href);
-          // console.log("element.data.date: " + element.data[0].date_created);
-          _date_01 = element.data[0].date_created;
-          // console.log("element.data.title: " + element.data[0].title);
-          _title = element.data[0].title;
-          // console.log("element.data.description: " + element.data[0].description);
-          _description_01 = element.data[0].description;
-          // console.log("element.data.media_type: " + element.data[0].media_type);
-          _media_type = element.data[0].media_type;
+    //* WRAP AJAX CALLS IN A PROMISE
+    let ajaxPromise = new Promise(
+      function (funcResolve, funcReject) {
+
+        $.ajax({
+          url: str_url,
+          type: 'GET',
+          async: true,
+          dataType: 'json',
+          success: function (data) {
+            console.log("NASA MEDIA SEARCH: 01");
+            // console.log(data);
+            // console.log(Object.keys((data.collection)));
+            // console.log(data.collection.items);
+            let nasa_search_count = 0;
+            let _date_01;
+            // let _date_02;
+            let _hdurl;
+            let _url;
+            let _title;
+            let _description_01;
+            // let _description_02;
+            let _media_type;
+            let _copyright;
+            let _thumbnail;
+            data.collection.items.forEach((element) => {
+              // console.log("element.href: " + element.href);
+              // console.log("element.data.date: " + element.data[0].date_created);
+              _date_01 = element.data[0].date_created;
+              // console.log("element.data.title: " + element.data[0].title);
+              _title = element.data[0].title;
+              // console.log("element.data.description: " + element.data[0].description);
+              _description_01 = element.data[0].description;
+              // console.log("element.data.media_type: " + element.data[0].media_type);
+              _media_type = element.data[0].media_type;
           
-          //* INNER AJAX CALL TO COLLECTION JSON
-          $.ajax({
-            url: element.href,
-            type: 'GET',
-            dataType: 'json',
-            success: function (cjsonData) {
-              console.log("NASA MEDIA SEARCH: 02");
-              //               cjsonData[0] ... http://images-assets.nasa.gov/image/NHQ201907180119/NHQ201907180119~orig.tif,
-
-              //! hdurl    ... cjsonData[1] ... http://images-assets.nasa.gov/image/NHQ201907180119/NHQ201907180119~large.jpg,
-              // console.log("cjsonData[1] ~large.jpg: " + cjsonData[1]);
-              _hdurl = cjsonData[1];
-
-              //! url      ... cjsonData[2] ... http://images-assets.nasa.gov/image/NHQ201907180119/NHQ201907180119~medium.jpg,
-              // console.log("cjsonData[2] ~medium.jpg: " + cjsonData[2]);
-              _url = cjsonData[2];
-
-              //           ... cjsonData[3] ... http://images-assets.nasa.gov/image/NHQ201907180119/NHQ201907180119~small.jpg,
-
-              //! ########### TO DO ####################
-              //! thumb    ... cjsonData[4] ... http://images-assets.nasa.gov/image/NHQ201907180119/NHQ201907180119~thumb.jpg,
-              // console.log("cjsonData[4] thumbnail: " + cjsonData[4]);
-              //! ########### TO DO ####################
-              
-              //* metadata ... cjsonData[5] ... http://images-assets.nasa.gov/image/NHQ201907180119/metadata.json
-              //* INNER AJAX CALL TO METADATA
+              //* INNER AJAX CALL TO COLLECTION JSON
               $.ajax({
-                url: cjsonData[5],
+                url: element.href,
                 type: 'GET',
+                async: true,
                 dataType: 'json',
-                success: function (meta_data) {
-                  console.log("NASA MEDIA SEARCH: 03");
-                  // console.log("AVAIL Date Created: " + meta_data["AVAIL:DateCreated"]);
-                  _date_02 = meta_data["AVAIL:DateCreated"];
-                  // console.log("AVAIL Copyright: " + meta_data["EXIF:Copyright"]);
-                  _copyright = meta_data["EXIF:Copyright"];
-                  // console.log("AVAIL Description: " + meta_data["AVAIL:Description"]);
-                  _description_02 = meta_data["AVAIL:Description"];
+                success: function (cjsonData) {
+                  console.log("NASA MEDIA SEARCH: 02");
+                  //               cjsonData[0] ... http://images-assets.nasa.gov/image/NHQ201907180119/NHQ201907180119~orig.tif,
+                  // hdurl    ... cjsonData[1] ... http://images-assets.nasa.gov/image/NHQ201907180119/NHQ201907180119~large.jpg,
+                  // console.log("cjsonData[1] ~large.jpg: " + cjsonData[1]);
+                  _hdurl = cjsonData[1];
+                  // url      ... cjsonData[2] ... http://images-assets.nasa.gov/image/NHQ201907180119/NHQ201907180119~medium.jpg,
+                  // console.log("cjsonData[2] ~medium.jpg: " + cjsonData[2]);
+                  _url = cjsonData[2];
+                  //           ... cjsonData[3] ... http://images-assets.nasa.gov/image/NHQ201907180119/NHQ201907180119~small.jpg,
+                  // thumb    ... cjsonData[4] ... http://images-assets.nasa.gov/image/NHQ201907180119/NHQ201907180119~thumb.jpg,
+                  // console.log("cjsonData[4] thumbnail: " + cjsonData[4]);
+                  _thumbnail = cjsonData[4];
+              
+                  //* metadata ... cjsonData[5] ... http://images-assets.nasa.gov/image/NHQ201907180119/metadata.json
+                  //* INNER AJAX CALL TO METADATA
+                  $.ajax({
+                    url: cjsonData[5],
+                    type: 'GET',
+                    async: true,
+                    dataType: 'json',
+                    success: function (meta_data) {
+                      console.log("NASA MEDIA SEARCH: 03");
+                      // console.log("AVAIL Date Created: " + meta_data["AVAIL:DateCreated"]);
+                      // _date_02 = meta_data["AVAIL:DateCreated"];                
+                      // console.log("AVAIL Copyright: " + meta_data["EXIF:Copyright"]);
+                      _copyright = meta_data["EXIF:Copyright"];
+                      // console.log("AVAIL Description: " + meta_data["AVAIL:Description"]);
+                      _description_02 = meta_data["AVAIL:Description"];
+                  
+                      //* show collected information
+                      // console.log(nasa_search_key + nasa_search_count + "_date_01: " + _date_01);
+                      // console.log(nasa_search_key + nasa_search_count + "_date_02: " + _date_02);
+                      // console.log(nasa_search_key + nasa_search_count + "_hdurl: " + _hdurl);
+                      // console.log(nasa_search_key + nasa_search_count + "_url: " + _url);
+                      // console.log(nasa_search_key + nasa_search_count + "_title: " + _title);
+                      // console.log(nasa_search_key + nasa_search_count + "_description_01: " + _description_01);
+                      // console.log(nasa_search_key + nasa_search_count + "_description_02: " + _description_02);
+                      // console.log(nasa_search_key + nasa_search_count + "_media_type: " + _media_type);
+                      // console.log(nasa_search_key + nasa_search_count + "_copyright: " + _copyright);
+                  
+                      //* save detail in sessionStorage
+                      // sessionStorage.setItem(key, value);
+                      nasa_search_count++;
+                      let nasa_search_key = "nasa_search_key_" + nasa_search_count;
+                      sessionStorage.setItem((nasa_search_key + "_date"), _date_01);
+                      sessionStorage.setItem((nasa_search_key + "_hdurl"), _hdurl);
+                      sessionStorage.setItem((nasa_search_key + "_url"), _url);
+                      sessionStorage.setItem((nasa_search_key + "_title"), _title);
+                      sessionStorage.setItem((nasa_search_key + "_explanation"), _description_01);
+                      sessionStorage.setItem((nasa_search_key + "_media_type"), _media_type);
+                      sessionStorage.setItem((nasa_search_key + "_copyright"), _copyright);
+                      sessionStorage.setItem((nasa_search_key + "_thumbnail"), _thumbnail);
+                      //* leave a hint as to how many search result are in sessionStorage
+                      sessionStorage.setItem("nasa_search_count", nasa_search_count);
+
+                    },
+                    error: function (xhr, status, errorThrown) {
+                      console.log("INNER AJAX MDATA Error: " + errorThrown);
+                      console.log("INNER AJAX MDATA Status: " + status);
+                      console.dir(xhr);
+                    }
+                  });
+                  //* ______________________
+                  // console.log("_date_01): ", _date_01);
+                  // console.log("_date_02: ", _date_02);
+                  // console.log("_hdurl: ", _hdurl);
+                  // console.log("_url: ", _url);
+                  // console.log("_title: ", _title);
+                  // console.log("_description_01: ", _description_01);
+                  // console.log("_description_02: ", _description_02);
+                  // console.log("_media_type: ", _media_type);
+                  // console.log("_copyright: ", _copyright);
                 },
                 error: function (xhr, status, errorThrown) {
-                console.log("INNER AJAX MDATA Error: " + errorThrown);
-                console.log("INNER AJAX MDATA Status: " + status);
-                console.dir(xhr);
+                  console.log("INNER AJAX Error: " + errorThrown);
+                  console.log("INNER AJAX Status: " + status);
+                  console.dir(xhr);
                 }
               });
-              //* ______________________
-              // console.log("_date_01): ", _date_01);
-              // console.log("_date_02: ", _date_02);
-              // console.log("_hdurl: ", _hdurl);
-              // console.log("_url: ", _url);
-              // console.log("_title: ", _title);
-              // console.log("_description_01: ", _description_01);
-              // console.log("_description_02: ", _description_02);
-              // console.log("_media_type: ", _media_type);
-              // console.log("_copyright: ", _copyright);
-            },
-            error: function (xhr, status, errorThrown) {
-              console.log("INNER AJAX Error: " + errorThrown);
-              console.log("INNER AJAX Status: " + status);
-              console.dir(xhr);
-            }
-          });
-          //* _____________________________
-        }); // enf of data.collection.items.forEach((element))
-        //* show collected information
-      },
-      error: function (xhr, status, errorThrown) {
-        console.log("MAIN AJAX Error: " + errorThrown);
-        console.log("MAIN AJAX Status: " + status);
-        console.dir(xhr);
-      },
-      complete: function () {
-        // alert( "The request is complete!" );
+              //* _____________________________              
+            }); // end of data.collection.items.forEach((element))
+            funcResolve();
+          },
+          error: function (xhr, status, errorThrown) {
+            console.log("MAIN AJAX Error: " + errorThrown);
+            console.log("MAIN AJAX Status: " + status);
+            console.dir(xhr);
+            funcReject(errorThrown);
+          }
+        });  // end of ajax function
+        
+        //* return the outcome of the Promise to the calling block
+        //* ... in this case, 
+        //*     simply wait until ajax calls have completed before exiting 
       }
 
-    });  // end of ajax function
+
+    ); // end of promise ... ajaxPromise
+
+    return await ajaxPromise;
 
   }
+
+  //* function to return JS oBject nasa search result in sessionStorage
+  function getNasaSearchItem(idx_search_result) {
+
+    let nasa_search_key = "nasa_search_key_" + idx_search_result;
+    let _date = sessionStorage.getItem( (nasa_search_key + "_date") );
+    let _hdurl = sessionStorage.getItem( (nasa_search_key + "_hdurl") );
+    let _url = sessionStorage.getItem( (nasa_search_key + "_url") );
+    let _title = sessionStorage.getItem( (nasa_search_key + "_title") );                  
+    let _explanation = sessionStorage.getItem( (nasa_search_key + "_explanation") );
+    let _media_type = sessionStorage.getItem( (nasa_search_key + "_media_type") );
+    let _copyright = sessionStorage.getItem((nasa_search_key + "_copyright") );
+    let _thumbnail = sessionStorage.getItem((nasa_search_key + "_thumbnail"));
+    
+    return { date: _date,
+             hdurl: _hdurl,
+             url: _url,
+             title: _title,                  
+             explanation: _explanation,
+             media_type: _media_type,
+             copyright: _copyright,
+             thumbnail: _thumbnail };
+  } // end of function getNasaSearchResults()
+
+  //* function to get all nasa search items() 
+  function showNasaSearchResults() {
+    //* get search result count
+    let search_count = sessionStorage.getItem("nasa_search_count");
+    for (var idx = 1; idx <= search_count; idx++) {
+      let search_result = getNasaSearchItem(idx);
+      console.log("search result {" + idx + "}:");
+      console.log(search_result);
+    }
+  } // end of function showNasaSearchResults()
 
   //          DATA TO SAVE IN SESSION
   // 1  slide_id:        "slide-07"
