@@ -111,7 +111,8 @@ PRIMARY KEY (contact_id)
 --?             Table: user_media
 --
 USE pex_db;
-DROP TABLE IF EXISTS user_media;
+--DROP TABLE IF EXISTS user_media;
+-- ALTER TABLE user_media ADD COLUMN thumb_url VARCHAR(128) NULL AFTER url;
 CREATE TABLE IF NOT EXISTS user_media (
 media_id        INT(10)      NOT NULL AUTO_INCREMENT,
 copyright       VARCHAR(50)  NULL,
@@ -122,6 +123,7 @@ media_type      VARCHAR(10)  NULL,
 service_version VARCHAR(10)  NULL,
 title           VARCHAR(50)  NULL,
 url             VARCHAR(128) NOT NULL,
+thumb_url       VARCHAR(128) NULL,
 PRIMARY KEY (media_id),
 UNIQUE KEY idx_url (url), 
 KEY idx_title (title)
